@@ -33,7 +33,7 @@ class taskListReader(  ):
         self.cur = self.con.cursor()
         
         # 9999 is the magic number for "no due date"
-        self.cur.execute('select due, description from tasklist where due != "9999"')
+        self.cur.execute('select due, description from tasklist where due != "9999" and open = 1')
  
     def __iter__( self ):
         return self
