@@ -25,6 +25,15 @@ To just generate the .ics file
     
 The cache file probably resides in ~/.cache/zim
 
+It will most usefull when it updates itself automatically
+
+Add a line like this in crontab (using *crontab -e*)
+
+    47 * * * * <somepath>/zimToCal.py <path to cache>/index.db > <path to calendar file>/zimTasks.ics
+
+This will run the script once per hour at 47 minutes past.
+
+
 
 Using the .ics file in thunderbird
 --------------------------------------
