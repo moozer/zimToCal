@@ -7,21 +7,31 @@
 
 from taskListReader import taskListReader
 from icalendar import Calendar, Event
-
-cal = Calendar()
 from datetime import date, timedelta
+import sys
 
-cal.add('prodid', '-//moozer/zimToCal//')
-cal.add('version', '2.0')
+def taskToCal( filename):
+    cal = Calendar()
 
-for t in taskListReader( "testData/index.db" ):
-    
-    event = Event()
-    event.add('summary', t["description"])
-    event.add('dtstart', t["date"] )
-    event.add('dtend', t["date"]+timedelta(days=1) )
-    
-    cal.add_component(event)
+    cal.add('prodid', '-//moozer/zimToCal//')
+    cal.add('version', '2.0')
 
-# and output to stdout
-print cal.to_ical()
+    for t in taskListReader( filename ):
+        
+        event = Event()
+        event.add('summary', t["description"])
+        event.add('dtstart', t["date"] )
+        event.add('dtend', t["date"]+timedelta(days=1) )
+        
+        cal.add_component(event)
+
+    # and output to stdout
+    print cal.to_ical()
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "usage: "
+        print "  %s <path to index.db>"%sys.argv[0]
+        exit()
+        
+    taskToCal( sys.argv[1] )
