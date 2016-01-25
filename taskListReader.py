@@ -2,6 +2,7 @@
 
 import sqlite3
 import re
+from datetime import date
 
 class taskListReader(  ):
     ''' reads the tasklist cache file and outputs 
@@ -43,8 +44,9 @@ class taskListReader(  ):
             raise StopIteration
 
         result = re.sub('\[.*\]', '', row[1])
-
-        nexttask = { "date": row[0], 
+        
+        y,m,d = [int(i) for i in row[0].split('-')]
+        nexttask = { "date": date( y,m,d ), 
                      "description": result }
 
         return nexttask        
