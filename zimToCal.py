@@ -36,7 +36,6 @@ def taskToCal( filename):
         except StopIteration:
             break
             
-    # and output to stdout
     return cal.to_ical()
 
 if __name__ == "__main__":
