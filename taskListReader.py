@@ -44,11 +44,14 @@ class taskListReader(  ):
             raise StopIteration
 
         result = re.sub('\[.*\]', '', row[1])
-        
-        y,m,d = [int(i) for i in row[0].split('-')]
-        nexttask = { "date": date( y,m,d ), 
-                     "description": result }
 
+        try:
+            y,m,d = [int(i) for i in row[0].split('-')]
+            nexttask = { "date": date( y,m,d ), 
+                        "description": result }
+        except ValueError:
+            raise ValueError( "Possible date error in task '%s'"%row[1] )
+            
         return nexttask        
 
     

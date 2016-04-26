@@ -16,15 +16,23 @@ def taskToCal( filename):
     cal.add('prodid', '-//moozer/zimToCal//')
     cal.add('version', '2.0')
 
-    for t in taskListReader( filename ):
-        
-        event = Event()
-        event.add('summary', t["description"])
-        event.add('dtstart', t["date"] )
-        event.add('dtend', t["date"]+timedelta(days=1) )
-        
-        cal.add_component(event)
-
+    reader = taskListReader( filename )
+    while True:
+        try:
+            t = reader.next()
+      
+            event = Event()
+            event.add('summary', t["description"])
+            event.add('dtstart', t["date"] )
+            event.add('dtend', t["date"]+timedelta(days=1) )
+            
+            cal.add_component(event)
+        except ValueError, ex:
+            print >> sys.stderr, "ValueError reported: %s"%ex
+            continue
+        except StopIteration:
+            break
+            
     # and output to stdout
     print cal.to_ical()
 
