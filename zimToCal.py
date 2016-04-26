@@ -21,11 +21,11 @@ def addCalEvent( cal, task ):
     event.add('dtend', task["date"]+timedelta(days=1) )    
     cal.add_component(event)
 
-def taskToCal( filename):
+def taskToCal( filename, tag ):
     cal = Calendar()
     addCalHeaders( cal )
 
-    reader = taskListReader( filename )
+    reader = taskListReader( filename, tag )
     while True:
         try:
             task = reader.next()
@@ -41,7 +41,10 @@ def taskToCal( filename):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "usage: "
-        print "  %s <path to index.db>"%sys.argv[0]
+        print "  %s <path to index.db> <tag>"%sys.argv[0]
         exit()
+    
+    filename = sys.argv[1]
+    tag = sys.argv[2] if len(sys.argv) > 2 else None
         
-    print taskToCal( sys.argv[1] )
+    print taskToCal( filename, tag )

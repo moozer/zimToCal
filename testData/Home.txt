@@ -18,4 +18,6 @@ It includes some tasks to be converted to .ics.
 	[ ] [d: 2016-01-04]Task D1
 	[ ] [d: 2016-01-05]Task D2
 [ ] [d: 2016-01-32]Task E (with error)
-
+[ ] [d: 2016-01-06]Task E @aTag
+	[ ] Task E1
+	[ ] Task E2
