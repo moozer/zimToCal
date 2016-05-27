@@ -21,3 +21,4 @@ It includes some tasks to be converted to .ics.
 [ ] [d: 2016-01-06]Task E @aTag
 	[ ] Task E1
 	[ ] Task E2
+[*] [d: 2016-01-07]Task F (exclude)
