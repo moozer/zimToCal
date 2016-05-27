@@ -8,6 +8,7 @@
 from taskListReader import taskListReader
 from icalendar import Calendar, Event
 from datetime import date, timedelta
+import re
 import sys
 
 def addCalHeaders( cal ):
@@ -29,6 +30,12 @@ def taskToCal( filename, tag ):
     while True:
         try:
             task = reader.next()
+
+            timeInfo = extractTime( task["description"] )
+            if timeInfo[0]:
+                task["description"] = timeInfo[1]
+                task["time"] = timeInfo[0]
+                
             addCalEvent( cal, task )            
         except ValueError, ex:
             print >> sys.stderr, "ValueError reported: %s"%ex
@@ -37,6 +44,19 @@ def taskToCal( filename, tag ):
             break
             
     return cal.to_ical()
+
+def extractTime( taskText ):
+    timeRegex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
+    parser = re.compile( timeRegex )
+    
+    timeTextFind = parser.match( taskText )
+    if timeTextFind:
+        timeText = timeTextFind.group().strip()
+    else:
+        timeText = None
+        
+    newText = parser.sub( '', taskText)
+    return (timeText, newText)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
