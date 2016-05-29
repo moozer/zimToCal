@@ -1,3 +1,5 @@
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/fe2d8ce21a334f46acd3921ccda7c6b3/badge.svg)](https://www.quantifiedcode.com/app/project/fe2d8ce21a334f46acd3921ccda7c6b3)
+
 zimToCal
 =========
 
