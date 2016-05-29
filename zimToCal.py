@@ -24,10 +24,8 @@ def addCalEvent( cal, task ):
         startTime = initialTime + timedelta(hours=task["time"][0], minutes=task["time"][1] )
         endTime = startTime + timedelta( hours=1 )
     else: # it is an all-day event
-        startTime = task["date"]+timedelta(days=1)
+        startTime = task["date"]
         endTime = startTime+timedelta(days=1)
-
-    print startTime, endTime
 
     event.add('dtstart', startTime )
     event.add('dtend', endTime )    
