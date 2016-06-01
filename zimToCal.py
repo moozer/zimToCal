@@ -11,6 +11,8 @@ from datetime import date, timedelta, datetime
 import re
 import sys
 
+import argparse
+
 def addCalHeaders( cal ):
     cal.add('prodid', '-//moozer/zimToCal//')
     cal.add('version', '2.0')
@@ -32,11 +34,11 @@ def addCalEvent( cal, task ):
 
     cal.add_component(event)
 
-def taskToCal( filename, tag ):
+def taskToCal( config ):
     cal = Calendar()
     addCalHeaders( cal )
 
-    reader = taskListReader( filename, tag )
+    reader = taskListReader( config )
     while True:
         try:
             task = reader.next()
@@ -71,12 +73,19 @@ def extractTime( taskText ):
     return (timeText, newText)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "usage: "
-        print "  %s <path to index.db> <tag>"%sys.argv[0]
-        exit()
+#    if len(sys.argv) < 2:
+#        print "usage: "
+#        print "  %s <path to index.db> <tag>"%sys.argv[0]
+#        exit()
+#    
+#    filename = sys.argv[1]
+#    tag = sys.argv[2] if len(sys.argv) > 2 else None
+#    showOpenTasks = False if
     
-    filename = sys.argv[1]
-    tag = sys.argv[2] if len(sys.argv) > 2 else None
-        
-    print taskToCal( filename, tag )
+    parser = argparse.ArgumentParser(description='zimToCal convert zim tasks to ics.')
+    parser.add_argument("filename", help="the index.db file to use" )
+    parser.add_argument('-t','--limit-tags',   help='Include only tasks with this tag', required=False)
+    parser.add_argument('-c','--closed-tasks', help='Show only closed tasks (default: show only open tasks)', 
+                                               required=False, action='store_true')
+    config = parser.parse_args()
+    print taskToCal( config )

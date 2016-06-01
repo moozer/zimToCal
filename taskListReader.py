@@ -26,20 +26,24 @@ class taskListReader(  ):
     );
 
     '''
-    def __init__( self, filename, tag = None ):
-        self.dbfilename = filename
+    def __init__( self, config ):
+        self.dbfilename = config.filename
     
         self.con = sqlite3.connect( self.dbfilename )
         self.cur = self.con.cursor()
  
-        print tag
-        
         # 9999 is the magic number for "no due date"
-        query = 'select due, description from tasklist where due != "9999" and open = 1'
-        if not tag:
+        query = 'select due, description from tasklist where due != "9999"'
+        
+        if config.closed_tasks:
+            query += " and open = 0"
+        else:
+            query += " and open = 1"
+            
+        if not config.limit_tags:
             self.cur.execute( query )
         else:
-            self.cur.execute( query + ' and tags=?', (tag, ) )
+            self.cur.execute( query + ' and tags=?', (config.limit_tags, ) )
  
     def __iter__( self ):
         return self
