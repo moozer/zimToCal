@@ -72,16 +72,7 @@ def extractTime( taskText ):
     newText = parser.sub( '', taskText)
     return (timeText, newText)
 
-if __name__ == "__main__":
-#    if len(sys.argv) < 2:
-#        print "usage: "
-#        print "  %s <path to index.db> <tag>"%sys.argv[0]
-#        exit()
-#    
-#    filename = sys.argv[1]
-#    tag = sys.argv[2] if len(sys.argv) > 2 else None
-#    showOpenTasks = False if
-    
+if __name__ == "__main__":    
     parser = argparse.ArgumentParser(description='zimToCal convert zim tasks to ics.')
     parser.add_argument("filename", help="the index.db file to use" )
     parser.add_argument('-t','--limit-tags',   help='Include only tasks with this tag', required=False)
