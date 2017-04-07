@@ -22,6 +22,6 @@ if __name__ == "__main__":
     config = setupArgparse()
 
     for t in taskListReader( config ):
-        timeText, newText = extractTime( t['description'] )
-        output = "%s\t%s\t%s"%(t['date'], timeText if timeText else "", newText.strip())
+        timeText, newText = extractTime( t.description )
+        output = "%s\t%s\t%s"%(t.date, timeText if timeText else "", newText.strip())
         print output.encode('utf-8')

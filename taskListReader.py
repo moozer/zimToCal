@@ -3,6 +3,7 @@
 import sqlite3
 import re
 from datetime import date
+from collections import namedtuple
 
 def extractTime( taskText ):
     ''' extracts the hours like " 10:03 " from the text
@@ -12,13 +13,14 @@ def extractTime( taskText ):
 
     timeTextFind = parser.match( taskText )
     if timeTextFind:
-        timeText = timeTextFind.group().strip()
+        timeText = [int(x) for x in timeTextFind.group().strip().split(':')]
     else:
         timeText = None
 
     newText = parser.sub( '', taskText)
     return (timeText, newText)
 
+task_record = namedtuple('task_record', ["date", "description", "time"])
 
 class taskListReader(  ):
     ''' reads the tasklist cache file and outputs
@@ -66,6 +68,7 @@ class taskListReader(  ):
 
     def next( self ):
         row = self.cur.fetchone()
+
         if not row:
             raise StopIteration
 
@@ -73,8 +76,11 @@ class taskListReader(  ):
 
         try:
             y,m,d = [int(i) for i in row[0].split('-')]
-            nexttask = { "date": date( y,m,d ),
-                        "description": result }
+            timeText, newText = extractTime( result )
+            nexttask = task_record(
+                        date=date( y,m,d ),
+                        description=newText,
+                        time=timeText)
         except ValueError:
             raise ValueError( "Possible date error in task '%s'"%row[1] )
 

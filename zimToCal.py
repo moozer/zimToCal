@@ -19,14 +19,14 @@ def addCalHeaders( cal ):
 
 def addCalEvent( cal, task ):
     event = Event()
-    event.add('summary', task["description"])
+    event.add('summary', task.description)
 
-    if task["time"]: # if time is included - it takes 1 h
-        initialTime = datetime.combine(task["date"], datetime.min.time())
-        startTime = initialTime + timedelta(hours=task["time"][0], minutes=task["time"][1] )
+    if task.time: # if time is included - it takes 1 h
+        initialTime = datetime.combine(task.date, datetime.min.time())
+        startTime = initialTime + timedelta(hours=task.time[0], minutes=task.time[1] )
         endTime = startTime + timedelta( hours=1 )
     else: # it is an all-day event
-        startTime = task["date"]
+        startTime = task.date
         endTime = startTime+timedelta(days=1)
 
     event.add('dtstart', startTime )
@@ -42,14 +42,6 @@ def taskToCal( config ):
     while True:
         try:
             task = reader.next()
-
-            timeInfo = extractTime( task["description"] )
-            if timeInfo[0]:
-                task["description"] = timeInfo[1]
-                task["time"] = [int(i) for i in timeInfo[0].split(":")]
-            else:
-                task["time"] = None
-
             addCalEvent( cal, task )
         except ValueError, ex:
             print >> sys.stderr, "ValueError reported: %s"%ex
