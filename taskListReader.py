@@ -22,7 +22,8 @@ def extractTime( taskText ):
 
 task_record = namedtuple('task_record', ["date", "description", "time", "open", "tags"])
 
-class taskListReader(  ):
+
+class taskListReader( object ):
     ''' reads the tasklist cache file and outputs
 
     and becomes an iterable object
@@ -51,7 +52,7 @@ class taskListReader(  ):
         self.cur = self.con.cursor()
 
         # 9999 is the magic number for "no due date"
-        query = 'select due, description, open, tags from tasklist where due != "9999"'
+        query = 'select due, description, open, tags, source from tasklist where due != "9999"'
 
         if config.closed_tasks:
             query += " and open = 0"
@@ -68,17 +69,17 @@ class taskListReader(  ):
 
     def next( self ):
         try:
-            due, description, open_status, tags  = self.cur.fetchone()
+            due, description, open_status, tags, source_id = self.cur.fetchone()
+
+            print source_id
+            print self._get_parent_page( source_id )
 
             result = re.sub('\[.*\]', '', description)
-
             y,m,d = [int(i) for i in due.split('-')]
             timeText, newText = extractTime( result )
             nexttask = task_record(
-                        date=date( y,m,d ),
-                        description=newText,
-                        time=timeText,
-                        open=open_status,
+                        date=date( y,m,d ), description=newText,
+                        time=timeText, open=open_status,
                         tags=tags )
 
             return nexttask
@@ -89,7 +90,16 @@ class taskListReader(  ):
         except TypeError:
             raise StopIteration
 
+    def _get_parent_page( self, pageid ):
+        print "pageid", pageid
 
+        cur = self.con.cursor()
+
+        query = "select parent, basename from pages where id = ?"
+        cur.execute( query, (pageid, ) )
+
+        parent_id, pagename = cur.fetchone()
+        return parent_id, pagename
 
 # a simple test to show syntax
 class AttrDict(dict):
