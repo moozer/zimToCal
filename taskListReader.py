@@ -4,6 +4,22 @@ import sqlite3
 import re
 from datetime import date
 
+def extractTime( taskText ):
+    ''' extracts the hours like " 10:03 " from the text
+    '''
+    timeRegex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
+    parser = re.compile( timeRegex )
+
+    timeTextFind = parser.match( taskText )
+    if timeTextFind:
+        timeText = timeTextFind.group().strip()
+    else:
+        timeText = None
+
+    newText = parser.sub( '', taskText)
+    return (timeText, newText)
+
+
 class taskListReader(  ):
     ''' reads the tasklist cache file and outputs
 

@@ -30,7 +30,7 @@ def addCalEvent( cal, task ):
         endTime = startTime+timedelta(days=1)
 
     event.add('dtstart', startTime )
-    event.add('dtend', endTime )    
+    event.add('dtend', endTime )
 
     cal.add_component(event)
 
@@ -49,34 +49,21 @@ def taskToCal( config ):
                 task["time"] = [int(i) for i in timeInfo[0].split(":")]
             else:
                 task["time"] = None
-            
-            addCalEvent( cal, task )            
+
+            addCalEvent( cal, task )
         except ValueError, ex:
             print >> sys.stderr, "ValueError reported: %s"%ex
             continue
         except StopIteration:
             break
-            
+
     return cal.to_ical()
 
-def extractTime( taskText ):
-    timeRegex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
-    parser = re.compile( timeRegex )
-    
-    timeTextFind = parser.match( taskText )
-    if timeTextFind:
-        timeText = timeTextFind.group().strip()
-    else:
-        timeText = None
-        
-    newText = parser.sub( '', taskText)
-    return (timeText, newText)
-
-if __name__ == "__main__":    
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='zimToCal convert zim tasks to ics.')
     parser.add_argument("filename", help="the index.db file to use" )
     parser.add_argument('-t','--limit-tags',   help='Include only tasks with this tag', required=False)
-    parser.add_argument('-c','--closed-tasks', help='Show only closed tasks (default: show only open tasks)', 
+    parser.add_argument('-c','--closed-tasks', help='Show only closed tasks (default: show only open tasks)',
                                                required=False, action='store_true')
     config = parser.parse_args()
     print taskToCal( config )
