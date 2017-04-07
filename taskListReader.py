@@ -20,7 +20,7 @@ def extractTime( taskText ):
     newText = parser.sub( '', taskText)
     return (timeText, newText)
 
-task_record = namedtuple('task_record', ["date", "description", "time", "open", "tags"])
+task_record = namedtuple('task_record', ["date", "description", "time", "open", "tags", "path"])
 
 
 class taskListReader( object ):
@@ -71,8 +71,7 @@ class taskListReader( object ):
         try:
             due, description, open_status, tags, source_id = self.cur.fetchone()
 
-            print source_id
-            print self._get_parent_page( source_id )
+            path=self._get_parent_pages( source_id )
 
             result = re.sub('\[.*\]', '', description)
             y,m,d = [int(i) for i in due.split('-')]
@@ -80,7 +79,7 @@ class taskListReader( object ):
             nexttask = task_record(
                         date=date( y,m,d ), description=newText,
                         time=timeText, open=open_status,
-                        tags=tags )
+                        tags=tags, path=path )
 
             return nexttask
 
@@ -90,16 +89,19 @@ class taskListReader( object ):
         except TypeError:
             raise StopIteration
 
+    def _get_parent_pages( self, pageid ):
+        parent_id, basename = self._get_parent_page( pageid )
+
+        if parent_id == 0:
+            return basename
+
+        return self._get_parent_pages( parent_id ) + " " + basename
+
     def _get_parent_page( self, pageid ):
-        print "pageid", pageid
-
         cur = self.con.cursor()
-
         query = "select parent, basename from pages where id = ?"
         cur.execute( query, (pageid, ) )
-
-        parent_id, pagename = cur.fetchone()
-        return parent_id, pagename
+        return cur.fetchone()
 
 # a simple test to show syntax
 class AttrDict(dict):
