@@ -20,7 +20,7 @@ def extractTime( taskText ):
     newText = parser.sub( '', taskText)
     return (timeText, newText)
 
-task_record = namedtuple('task_record', ["date", "description", "time"])
+task_record = namedtuple('task_record', ["date", "description", "time", "open", "tags"])
 
 class taskListReader(  ):
     ''' reads the tasklist cache file and outputs
@@ -51,7 +51,7 @@ class taskListReader(  ):
         self.cur = self.con.cursor()
 
         # 9999 is the magic number for "no due date"
-        query = 'select due, description from tasklist where due != "9999"'
+        query = 'select due, description, open, tags from tasklist where due != "9999"'
 
         if config.closed_tasks:
             query += " and open = 0"
@@ -67,24 +67,28 @@ class taskListReader(  ):
         return self
 
     def next( self ):
-        row = self.cur.fetchone()
-
-        if not row:
-            raise StopIteration
-
-        result = re.sub('\[.*\]', '', row[1])
-
         try:
-            y,m,d = [int(i) for i in row[0].split('-')]
+            due, description, open_status, tags  = self.cur.fetchone()
+
+            result = re.sub('\[.*\]', '', description)
+
+            y,m,d = [int(i) for i in due.split('-')]
             timeText, newText = extractTime( result )
             nexttask = task_record(
                         date=date( y,m,d ),
                         description=newText,
-                        time=timeText)
-        except ValueError:
-            raise ValueError( "Possible date error in task '%s'"%row[1] )
+                        time=timeText,
+                        open=open_status,
+                        tags=tags )
 
-        return nexttask
+            return nexttask
+
+        except ValueError:
+            raise ValueError( "Possible date error in task '%s'"%description)
+
+        except TypeError:
+            raise StopIteration
+
 
 
 # a simple test to show syntax
