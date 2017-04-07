@@ -5,7 +5,7 @@
 # adapted from here:
 #  http://icalendar.readthedocs.org/en/latest/usage.html
 
-from taskListReader import taskListReader
+from taskListReader import taskListReader, extractTime
 from icalendar import Calendar, Event
 from datetime import date, timedelta, datetime
 import re
