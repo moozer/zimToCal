@@ -22,9 +22,12 @@ if __name__ == "__main__":
     config = setupArgparse()
 
     for t in taskListReader( config ):
+        output = "%s"%(t.date )
         if not t.time:
-            output = "%s\t\t%s\t%s\t%s"%(t.date, t.open, t.tags, t.description)
+            output += "\t"
         else:
-            output = "%s\t%d:%02d\t%s\t%s\t%s"%(t.date, t.time[0], t.time[1], t.open, t.tags, t.description)
+            output += "\t%d:%02d"%(t.time[0], t.time[1], )
+        output += "\t%s\t%s\t%s"%(t.open, t.tags, t.path)
+        output += "\t%s"%(t.description, )
 
         print output.encode('utf-8')
