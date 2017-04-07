@@ -23,4 +23,5 @@ if __name__ == "__main__":
 
     for t in taskListReader( config ):
         timeText, newText = extractTime( t['description'] )
-        print "%s\t%s\t%s"%(t['date'], timeText if timeText else "", newText.strip())
+        output = "%s\t%s\t%s"%(t['date'], timeText if timeText else "", newText.strip())
+        print output.encode('utf-8')
