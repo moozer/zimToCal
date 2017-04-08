@@ -27,7 +27,7 @@ if __name__ == "__main__":
             output += "\t"
         else:
             output += "\t%d:%02d"%(t.time[0], t.time[1], )
-        output += "\t%s\t%s\t%s"%(t.open, t.tags, t.path)
+        output += "\t%s\t%s\t%s\t%s"%(t.open, t.priority, t.tags, t.path)
         output += "\t%s"%(t.description, )
 
         print output.encode('utf-8')
