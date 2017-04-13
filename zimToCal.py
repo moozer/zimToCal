@@ -51,11 +51,20 @@ def taskToCal( config ):
 
     return cal.to_ical()
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='zimToCal convert zim tasks to ics.')
+def setupArgparse():
+    parser = argparse.ArgumentParser(description='Output zim tasks')
     parser.add_argument("filename", help="the index.db file to use" )
     parser.add_argument('-t','--limit-tags',   help='Include only tasks with this tag', required=False)
-    parser.add_argument('-c','--closed-tasks', help='Show only closed tasks (default: show only open tasks)',
-                                               required=False, action='store_true')
-    config = parser.parse_args()
+    parser.add_argument('-c','--closed-tasks',
+                        help='Show closed tasks (default: do not show closed tasks )',
+                        required=False, action='store_true',
+                        default=False )
+    parser.add_argument('-no','--not-open-tasks', help='Show open tasks (default: show open tasks )',
+                        required=False, action='store_true',
+                        default=False )
+
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    config = setupArgparse()
     print taskToCal( config )

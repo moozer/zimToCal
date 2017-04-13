@@ -84,10 +84,11 @@ class taskListReader( object ):
         # 9999 is the magic number for "no due date"
         query = 'select due, description, open, tags, source, prio from tasklist where due != "9999"'
 
-        if self.config.closed_tasks:
-            query += " and open = 0"
-        else:
+        if not self.config.closed_tasks and not self.config.not_open_tasks:
             query += " and open = 1"
+        elif self.config.closed_tasks and self.config.not_open_tasks:
+            query += " and open = 0"
+        # else: nothing
 
         if not self.config.limit_tags:
             cur.execute( query )
