@@ -18,6 +18,7 @@ if __name__ == "__main__":
             output += "\t"
         else:
             output += "\t%d:%02d"%(t.time[0], t.time[1], )
+        output += "\t%s"%(t.reach if t.reach else "",)
         output += "\t%s\t%s\t%s\t%s"%(t.open, t.priority, t.tags, t.path)
         output += "\t%s"%(t.description, )
 

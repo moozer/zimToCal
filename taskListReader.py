@@ -4,9 +4,10 @@ import sqlite3
 import re
 from datetime import date
 from collections import namedtuple
+import sys
 
 def extractTime( taskText ):
-    ''' extracts the hours like " 10:03 " from the text
+    ''' extracts the hours like " 10:03 " from start of the text
     '''
     timeRegex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
     parser = re.compile( timeRegex )
@@ -20,9 +21,35 @@ def extractTime( taskText ):
     newText = parser.sub( '', taskText)
     return (timeText, newText)
 
+def removeTag( taskText, tag ):
+    ''' extracts the hours like " 10:03 " from start of the text
+    '''
+    timeRegex = "@%s"%(tag,)
+    parser = re.compile( timeRegex )
+    newText = parser.sub( '', taskText)
+    return newText
+
+
+def extractReach( taskText ):
+    ''' extracts the hours like " r08 " from the start of text
+    '''
+    reachRegex = '^\ {0,1}r{1}\d{2}\ {0,}'
+    parser = re.compile( reachRegex )
+
+    reachTextFind = parser.match( taskText )
+    if reachTextFind:
+        reach_days = int( reachTextFind.group().strip()[1:] )
+    else:
+        reach_days = None
+
+    newText = parser.sub( '', taskText)
+    return (reach_days, newText)
+
+
 task_record = namedtuple('task_record',
                          ["date", "description", "time",
-                          "open", "tags", "path", "priority"])
+                          "open", "tags", "path",
+                          "priority", "reach"])
 
 
 class taskListReader( object ):
@@ -59,24 +86,32 @@ class taskListReader( object ):
 
     def next( self ):
         try:
-            due, description, open_status, tags, source_id, prio = self.tasks_query_cur.fetchone()
-            path=self._get_parent_pages( source_id )
+            row = self.tasks_query_cur.fetchone()
+            if not row:
+                raise StopIteration
 
+            due, description, open_status, tags, source_id, prio = row
+            path=self._get_parent_pages( source_id )
             result = re.sub('\[.*\]', '', description)
+
             y,m,d = [int(i) for i in due.split('-')]
             timeText, newText = extractTime( result )
+            reach_days, newText = extractReach( newText )
+            newText = removeTag( newText, self.config.limit_tags )
+
             nexttask = task_record(
                         date=date( y,m,d ), description=newText,
                         time=timeText, open=open_status,
-                        tags=tags, path=path, priority=prio )
+                        tags=tags, path=path, priority=prio,
+                        reach=reach_days )
 
             return nexttask
 
         except ValueError:
             raise ValueError( "Possible date error in task '%s'"%description)
 
-        except TypeError, ex:
-            raise StopIteration
+        except:
+            raise
 
     def _query_tasks( self ):
         cur = self.con.cursor()
