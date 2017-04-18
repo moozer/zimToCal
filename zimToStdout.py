@@ -13,7 +13,8 @@ if __name__ == "__main__":
     config = setupArgparse()
 
     for t in taskListReader( config ):
-        output = "%s"%(t.date )
+        output = "%d"%(t.id,)
+        output += "\t%s"%(t.date )
         if not t.time:
             output += "\t"
         else:

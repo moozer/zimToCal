@@ -33,7 +33,7 @@ def removeTag( taskText, tag ):
 def extractReach( taskText ):
     ''' extracts the hours like " r08 " from the start of text
     '''
-    reachRegex = '^\ {0,1}r{1}\d{2}\ {0,}'
+    reachRegex = '^\ {0,1}r{1}\d{1,3}\ {0,}'
     parser = re.compile( reachRegex )
 
     reachTextFind = parser.match( taskText )
@@ -49,7 +49,7 @@ def extractReach( taskText ):
 task_record = namedtuple('task_record',
                          ["date", "description", "time",
                           "open", "tags", "path",
-                          "priority", "reach"])
+                          "priority", "reach", "id"])
 
 
 class taskListReader( object ):
@@ -90,7 +90,7 @@ class taskListReader( object ):
             if not row:
                 raise StopIteration
 
-            due, description, open_status, tags, source_id, prio = row
+            due, description, open_status, tags, source_id, prio, task_id = row
             path=self._get_parent_pages( source_id )
             result = re.sub('\[.*\]', '', description)
 
@@ -103,7 +103,8 @@ class taskListReader( object ):
                         date=date( y,m,d ), description=newText,
                         time=timeText, open=open_status,
                         tags=tags, path=path, priority=prio,
-                        reach=reach_days )
+                        reach=reach_days,
+                        id=task_id )
 
             return nexttask
 
@@ -117,7 +118,7 @@ class taskListReader( object ):
         cur = self.con.cursor()
 
         # 9999 is the magic number for "no due date"
-        query = 'select due, description, open, tags, source, prio from tasklist where due != "9999"'
+        query = 'select due, description, open, tags, source, prio, id from tasklist where due != "9999"'
 
         if not self.config.closed_tasks and not self.config.not_open_tasks:
             query += " and open = 1"
@@ -145,6 +146,8 @@ class taskListReader( object ):
         query = "select parent, basename from pages where id = ?"
         cur.execute( query, (pageid, ) )
         return cur.fetchone()
+
+
 
 # a simple test to show syntax
 class AttrDict(dict):
