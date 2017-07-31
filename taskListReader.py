@@ -147,6 +147,18 @@ class taskListReader( object ):
         cur.execute( query, (pageid, ) )
         return cur.fetchone()
 
+    def _get_parent_task( self, task_id ):
+        cur = self.con.cursor()
+
+        # 9999 is the magic number for "no due date"
+        query = 'select t.id, p.id, p.description \
+                 from tasklist t \
+                 inner join tasklist p \
+                 on p.id = t.parent \
+                 where t.id = ?'
+
+        cur.execute( query, (task_id, ) )
+        return cur.fetchone()
 
 
 # a simple test to show syntax
