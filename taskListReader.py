@@ -49,7 +49,8 @@ def extractReach( taskText ):
 task_record = namedtuple('task_record',
                          ["date", "description", "time",
                           "open", "tags", "path",
-                          "priority", "reach", "id"])
+                          "priority", "reach", "parent_id", 
+                          "id"])
 
 
 class taskListReader( object ):
@@ -85,12 +86,16 @@ class taskListReader( object ):
         return self
 
     def next( self ):
-        try:
-            row = self.tasks_query_cur.fetchone()
-            if not row:
-                raise StopIteration
+        row = self.tasks_query_cur.fetchone()
+        if not row:
+            raise StopIteration
 
-            due, description, open_status, tags, source_id, prio, task_id = row
+        nexttask = self._create_task_from_row(row)
+        return nexttask
+
+    def _create_task_from_row(self, row):
+        try:
+            due, description, open_status, tags, source_id, prio, parent_id, task_id = row
             path=self._get_parent_pages( source_id )
             result = re.sub('\[.*\]', '', description)
 
@@ -99,26 +104,26 @@ class taskListReader( object ):
             reach_days, newText = extractReach( newText )
             newText = removeTag( newText, self.config.limit_tags )
 
-            nexttask = task_record(
+            task = task_record(
                         date=date( y,m,d ), description=newText,
                         time=timeText, open=open_status,
                         tags=tags, path=path, priority=prio,
                         reach=reach_days,
-                        id=task_id )
+                        parent_id=parent_id, id=task_id )
 
-            return nexttask
+            return task
 
         except ValueError:
             raise ValueError( "Possible date error in task '%s'"%description)
 
         except:
             raise
-
+        
     def _query_tasks( self ):
         cur = self.con.cursor()
 
         # 9999 is the magic number for "no due date"
-        query = 'select due, description, open, tags, source, prio, id from tasklist where due != "9999"'
+        query = 'select due, description, open, tags, source, prio, parent, id from tasklist where due != "9999"'
 
         if not self.config.closed_tasks and not self.config.not_open_tasks:
             query += " and open = 1"
@@ -162,6 +167,11 @@ class taskListReader( object ):
         cur.execute( query, (task_id, ) )
         return cur.fetchone()
 
+    def get_task( self, task_id ):
+        cur = self.con.cursor()
+        query = 'select due, description, open, tags, source, prio, parent, id from tasklist where parent=?'
+        cur.execute( query, (task_id, ) )
+        return self._create_task_from_row( cur.fetchone() )
 
 # a simple test to show syntax
 class AttrDict(dict):
