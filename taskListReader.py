@@ -137,9 +137,11 @@ class taskListReader( object ):
         parent_id, basename = self._get_parent_page( pageid )
 
         if parent_id == 0:
-            return basename
+            return []
 
-        return self._get_parent_pages( parent_id ) + " " + basename
+        prevpages = self._get_parent_pages( parent_id )
+        prevpages.append( basename )
+        return prevpages
 
     def _get_parent_page( self, pageid ):
         cur = self.con.cursor()
