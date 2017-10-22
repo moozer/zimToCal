@@ -2,7 +2,7 @@
 
 import sqlite3
 import re
-from datetime import date
+from datetime import datetime
 from collections import namedtuple
 import sys
 
@@ -49,7 +49,7 @@ def extractReach( taskText ):
 task_record = namedtuple('task_record',
                          ["date", "description", "time",
                           "open", "tags", "path",
-                          "priority", "reach", "parent_id", 
+                          "priority", "reach", "parent_id",
                           "id"])
 
 
@@ -105,7 +105,7 @@ class taskListReader( object ):
             newText = removeTag( newText, self.config.limit_tags )
 
             task = task_record(
-                        date=date( y,m,d ), description=newText,
+                        date=datetime( y,m,d ), description=newText,
                         time=timeText, open=open_status,
                         tags=tags, path=path, priority=prio,
                         reach=reach_days,
@@ -118,7 +118,7 @@ class taskListReader( object ):
 
         except:
             raise
-        
+
     def _query_tasks( self ):
         cur = self.con.cursor()
 
