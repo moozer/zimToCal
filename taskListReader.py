@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 from collections import namedtuple
 import sys
+import tzlocal
 
 def extractTime( taskText ):
     ''' extracts the hours like " 10:03 " from start of the text
@@ -105,7 +106,8 @@ class taskListReader( object ):
             newText = removeTag( newText, self.config.limit_tags )
 
             task = task_record(
-                        date=datetime( y,m,d ), description=newText,
+                        date=datetime( y,m,d, tzinfo=tzlocal.get_localzone() ),
+                        description=newText,
                         time=timeText, open=open_status,
                         tags=tags, path=path, priority=prio,
                         reach=reach_days,
