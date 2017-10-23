@@ -2,10 +2,10 @@
 
 import sqlite3
 import re
-from datetime import datetime
+from datetime import datetime, date
 from collections import namedtuple
 import sys
-import tzlocal
+import pytz
 
 def extractTime( taskText ):
     ''' extracts the hours like " 10:03 " from start of the text
@@ -51,7 +51,7 @@ task_record = namedtuple('task_record',
                          ["date", "description", "time",
                           "open", "tags", "path",
                           "priority", "reach", "parent_id",
-                          "id"])
+                          "id", "datetime"])
 
 
 class taskListReader( object ):
@@ -83,6 +83,11 @@ class taskListReader( object ):
 
         self.tasks_query_cur = self._query_tasks()
 
+        try:
+            self.default_tz = pytz.timezone( config.default_time_zone_name )
+        except AttributeError:
+            self.default_tz = pytz.timezone( 'Europe/Copenhagen' )
+
     def __iter__( self ):
         return self
 
@@ -106,7 +111,8 @@ class taskListReader( object ):
             newText = removeTag( newText, self.config.limit_tags )
 
             task = task_record(
-                        date=datetime( y,m,d, tzinfo=tzlocal.get_localzone() ),
+                        date=date( y,m,d ),
+                        datetime=datetime( y,m,d, tzinfo=self.default_tz ),
                         description=newText,
                         time=timeText, open=open_status,
                         tags=tags, path=path, priority=prio,
