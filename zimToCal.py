@@ -43,7 +43,7 @@ def taskToCal( config ):
         try:
             task = reader.next()
             addCalEvent( cal, task )
-        except ValueError, ex:
+        except ValueError as ex:
             print >> sys.stderr, "ValueError reported: %s"%ex
             continue
         except StopIteration:
@@ -67,4 +67,4 @@ def setupArgparse():
 
 if __name__ == "__main__":
     config = setupArgparse()
-    print taskToCal( config )
+    print (taskToCal( config ))

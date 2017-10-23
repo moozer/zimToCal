@@ -194,4 +194,4 @@ if __name__ == "__main__":
 
     tasks = taskListReader( AttrDict( config ) )
     for t in tasks:
-        print t
+        print( t)
