@@ -159,7 +159,7 @@ class taskListReader(object):
 
     def _get_parent_page(self, pageid):
         cur = self.con.cursor()
-        query = "select parent, basename from pages where id = ?"
+        query = "select parent, name from pages where id = ?"
         cur.execute(query, (pageid,))
         return cur.fetchone()
 
