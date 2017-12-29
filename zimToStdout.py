@@ -12,15 +12,15 @@ from zimToCal import setupArgparse
 if __name__ == "__main__":
     config = setupArgparse()
 
-    for t in taskListReader( config ):
-        output = "%d"%(t.id,)
-        output += "\t%s"%(t.date )
+    for t in taskListReader(config):
+        output = "%d" % (t.id,)
+        output += "\t%s" % (t.date)
         if not t.time:
             output += "\t"
         else:
-            output += "\t%d:%02d"%(t.time[0], t.time[1], )
-        output += "\t%s"%(t.reach if t.reach else "",)
-        output += "\t%s\t%s\t%s\t%s"%(t.open, t.priority, t.tags, t.path)
-        output += "\t%s"%(t.description, )
+            output += "\t%d:%02d" % (t.time[0], t.time[1],)
+        output += "\t%s" % (t.reach if t.reach else "",)
+        output += "\t%s\t%s\t%s\t%s" % (t.open, t.priority, t.tags, t.path)
+        output += "\t%s" % (t.description,)
 
         print output.encode('utf-8')
