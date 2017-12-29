@@ -5,16 +5,14 @@
 # adapted from here:
 #  http://icalendar.readthedocs.org/en/latest/usage.html
 
-from taskListReader import taskListReader, extractTime
-import argparse
+from taskListReader import taskListReader
 from zimToCal import setupArgparse
 
-if __name__ == "__main__":
-    config = setupArgparse()
 
+def task_to_stdout(config):
     for t in taskListReader(config):
         output = "%d" % (t.id,)
-        output += "\t%s" % (t.date)
+        output += "\t%s" % t.date
         if not t.time:
             output += "\t"
         else:
@@ -24,3 +22,8 @@ if __name__ == "__main__":
         output += "\t%s" % (t.description,)
 
         print output.encode('utf-8')
+
+
+if __name__ == "__main__":
+    config = setupArgparse()
+    task_to_stdout(config)
