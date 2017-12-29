@@ -36,7 +36,7 @@ def addCalEvent(cal, task):
     cal.add_component(event)
 
 
-def taskToCal(config):
+def task_to_cal(config):
     cal = Calendar()
     addCalHeaders(cal)
 
@@ -71,4 +71,4 @@ def setupArgparse():
 
 if __name__ == "__main__":
     config = setupArgparse()
-    print (taskToCal(config))
+    print (task_to_cal(config))
