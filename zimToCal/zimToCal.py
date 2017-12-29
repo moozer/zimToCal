@@ -9,6 +9,7 @@ from taskListReader import taskListReader
 from icalendar import Calendar, Event
 from datetime import timedelta, datetime
 import sys
+from collections import namedtuple
 
 import argparse
 
@@ -56,8 +57,11 @@ def task_to_cal(config):
 
 def setup_arg_parse():
     parser = argparse.ArgumentParser(description='Output zim tasks')
-    parser.add_argument("filename", help="the index.db file to use")
-    parser.add_argument('-t', '--limit-tags', help='Include only tasks with this tag', required=False)
+    parser.add_argument("filename",
+                        help="the index.db file to use")
+    parser.add_argument('-t', '--limit-tags',
+                        help='Include only tasks with this tag',
+                        required=False)
     parser.add_argument('-c', '--closed-tasks',
                         help='Show closed tasks (default: do not show closed tasks )',
                         required=False, action='store_true',
@@ -68,6 +72,8 @@ def setup_arg_parse():
 
     return parser.parse_args()
 
+
+ConfigStruct = namedtuple('ConfigStruct', ['filename', 'limit_tags', 'closed_tasks', 'not_open_tasks'])
 
 if __name__ == "__main__":
     config = setup_arg_parse()
