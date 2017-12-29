@@ -6,7 +6,7 @@
 #  http://icalendar.readthedocs.org/en/latest/usage.html
 
 from taskListReader import taskListReader
-from zimToCal import setupArgparse
+from zimToCal import setup_arg_parse
 
 
 def task_to_stdout(config):
@@ -25,5 +25,5 @@ def task_to_stdout(config):
 
 
 if __name__ == "__main__":
-    config = setupArgparse()
+    config = setup_arg_parse()
     task_to_stdout(config)

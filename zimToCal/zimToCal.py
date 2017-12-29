@@ -54,7 +54,7 @@ def task_to_cal(config):
     return cal.to_ical()
 
 
-def setupArgparse():
+def setup_arg_parse():
     parser = argparse.ArgumentParser(description='Output zim tasks')
     parser.add_argument("filename", help="the index.db file to use")
     parser.add_argument('-t', '--limit-tags', help='Include only tasks with this tag', required=False)
@@ -70,5 +70,5 @@ def setupArgparse():
 
 
 if __name__ == "__main__":
-    config = setupArgparse()
+    config = setup_arg_parse()
     print (task_to_cal(config))
