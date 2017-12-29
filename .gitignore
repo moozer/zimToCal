@@ -3,3 +3,5 @@
 .idea
 venv
 _trial_temp
+build
+zimToCal.egg-info
