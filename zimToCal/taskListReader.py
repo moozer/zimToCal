@@ -182,20 +182,3 @@ class taskListReader(object):
         cur.execute(query, (task_id,))
         return self._create_task_from_row(cur.fetchone())
 
-
-# a simple test to show syntax
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
-
-
-if __name__ == "__main__":
-    config = {"filename": "testData/index.db",
-              "closed_tasks": False,
-              "limit_tags": None,
-              "not_open_tasks": False}
-
-    tasks = taskListReader(AttrDict(config))
-    for t in tasks:
-        print(t)
