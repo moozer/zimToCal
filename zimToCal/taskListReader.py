@@ -2,13 +2,12 @@ import sqlite3
 import re
 from datetime import datetime, date
 from collections import namedtuple
-import sys
 import pytz
 
 
 def extractTime(taskText):
-    ''' extracts the hours like " 10:03 " from start of the text
-    '''
+    """ extracts the hours like " 10:03 " from start of the text
+    """
     timeRegex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
     parser = re.compile(timeRegex)
 
@@ -23,8 +22,8 @@ def extractTime(taskText):
 
 
 def removeTag(taskText, tag):
-    ''' extracts the hours like " 10:03 " from start of the text
-    '''
+    """ extracts the hours like " 10:03 " from start of the text
+    """
     timeRegex = "@%s" % (tag,)
     parser = re.compile(timeRegex)
     newText = parser.sub('', taskText)
@@ -32,8 +31,8 @@ def removeTag(taskText, tag):
 
 
 def extractReach(taskText):
-    ''' extracts the hours like " r08 " from the start of text
-    '''
+    """ extracts the hours like " r08 " from the start of text
+    """
     reachRegex = '^\ {0,1}r{1}\d{1,3}\ {0,}'
     parser = re.compile(reachRegex)
 
@@ -55,7 +54,7 @@ task_record = namedtuple('task_record',
 
 
 class taskListReader(object):
-    ''' reads the tasklist cache file and outputs
+    """ reads the tasklist cache file and outputs
 
     and becomes an iterable object
 
@@ -75,7 +74,7 @@ class taskListReader(object):
         description TEXT
     );
 
-    '''
+    """
 
     def __init__(self, config):
         self.dbfilename = config.filename
@@ -124,9 +123,6 @@ class taskListReader(object):
 
         except ValueError:
             raise ValueError("Possible date error in task '%s'" % description)
-
-        except:
-            raise
 
     def _query_tasks(self):
         cur = self.con.cursor()
@@ -181,4 +177,3 @@ class taskListReader(object):
         query = 'select due, description, open, tags, source, prio, parent, id from tasklist where parent=?'
         cur.execute(query, (task_id,))
         return self._create_task_from_row(cur.fetchone())
-
