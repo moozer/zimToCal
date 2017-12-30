@@ -5,12 +5,12 @@
 # adapted from here:
 #  http://icalendar.readthedocs.org/en/latest/usage.html
 
-from taskListReader import taskListReader
+from TaskListReader import TaskListReader
 from zimToCal import setup_arg_parse
 
 
 def task_to_stdout(config):
-    for t in taskListReader(config):
+    for t in TaskListReader(config):
         output = "%d" % (t.id,)
         output += "\t%s" % t.date
         if not t.time:

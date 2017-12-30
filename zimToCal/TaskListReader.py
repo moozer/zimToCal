@@ -2,13 +2,12 @@ import sqlite3
 import re
 from datetime import datetime, date
 from collections import namedtuple
-import sys
 import pytz
 
 
 def extractTime(taskText):
-    ''' extracts the hours like " 10:03 " from start of the text
-    '''
+    """ extracts the hours like " 10:03 " from start of the text
+    """
     timeRegex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
     parser = re.compile(timeRegex)
 
@@ -23,8 +22,8 @@ def extractTime(taskText):
 
 
 def removeTag(taskText, tag):
-    ''' extracts the hours like " 10:03 " from start of the text
-    '''
+    """ extracts the hours like " 10:03 " from start of the text
+    """
     timeRegex = "@%s" % (tag,)
     parser = re.compile(timeRegex)
     newText = parser.sub('', taskText)
@@ -32,8 +31,8 @@ def removeTag(taskText, tag):
 
 
 def extractReach(taskText):
-    ''' extracts the hours like " r08 " from the start of text
-    '''
+    """ extracts the hours like " r08 " from the start of text
+    """
     reachRegex = '^\ {0,1}r{1}\d{1,3}\ {0,}'
     parser = re.compile(reachRegex)
 
@@ -54,8 +53,8 @@ task_record = namedtuple('task_record',
                           "id", "datetime"])
 
 
-class taskListReader(object):
-    ''' reads the tasklist cache file and outputs
+class TaskListReader(object):
+    """ reads the tasklist cache file and outputs
 
     and becomes an iterable object
 
@@ -75,7 +74,7 @@ class taskListReader(object):
         description TEXT
     );
 
-    '''
+    """
 
     def __init__(self, config):
         self.dbfilename = config.filename
@@ -97,8 +96,8 @@ class taskListReader(object):
         if not row:
             raise StopIteration
 
-        nexttask = self._create_task_from_row(row)
-        return nexttask
+        next_task = self._create_task_from_row(row)
+        return next_task
 
     def _create_task_from_row(self, row):
         try:
@@ -124,9 +123,6 @@ class taskListReader(object):
 
         except ValueError:
             raise ValueError("Possible date error in task '%s'" % description)
-
-        except:
-            raise
 
     def _query_tasks(self):
         cur = self.con.cursor()
@@ -181,21 +177,3 @@ class taskListReader(object):
         query = 'select due, description, open, tags, source, prio, parent, id from tasklist where parent=?'
         cur.execute(query, (task_id,))
         return self._create_task_from_row(cur.fetchone())
-
-
-# a simple test to show syntax
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
-
-
-if __name__ == "__main__":
-    config = {"filename": "testData/index.db",
-              "closed_tasks": False,
-              "limit_tags": None,
-              "not_open_tasks": False}
-
-    tasks = taskListReader(AttrDict(config))
-    for t in tasks:
-        print(t)
