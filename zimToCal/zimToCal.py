@@ -5,7 +5,7 @@
 # adapted from here:
 #  http://icalendar.readthedocs.org/en/latest/usage.html
 
-from taskListReader import taskListReader
+from TaskListReader import TaskListReader
 from icalendar import Calendar, Event
 from datetime import timedelta, datetime
 import sys
@@ -41,7 +41,7 @@ def task_to_cal(config):
     cal = Calendar()
     addCalHeaders(cal)
 
-    reader = taskListReader(config)
+    reader = TaskListReader(config)
     while True:
         try:
             task = reader.next()

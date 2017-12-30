@@ -1,6 +1,7 @@
 import unittest
 from zimToCal import *
 import datetime
+import pytz
 
 test_config = ConfigStruct(filename='../testData/index.db',
                            not_open_tasks=False,
@@ -18,6 +19,18 @@ test_task = task_record(date="2017-12-11",
                         parent_id=10,
                         id=15,
                         datetime=datetime.datetime.strptime("2017-12-11 10:00", "%Y-%m-%d %H:%M"))
+
+first_test_record = task_record(date=datetime.date(2016, 1, 1),
+                                description=u'Task A',
+                                time=None,
+                                open=1,
+                                tags=u'',
+                                path=[u'Home'],
+                                priority=0,
+                                reach=None,
+                                parent_id=0,
+                                id=1,
+                                datetime=datetime.datetime(2016, 1, 1, 0, 0, tzinfo=pytz.timezone('Europe/Copenhagen')))
 
 
 class MyTestCase(unittest.TestCase):
@@ -38,6 +51,12 @@ class MyTestCase(unittest.TestCase):
 
     def test_task_to_cal(self):
         print task_to_cal(test_config)
+
+    def test_TaskListReader(self):
+        tlist = TaskListReader(test_config)
+
+        tr = tlist.next()
+        self.assertEqual(tr, first_test_record)
 
 
 if __name__ == '__main__':

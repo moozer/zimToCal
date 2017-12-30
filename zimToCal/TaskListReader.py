@@ -53,7 +53,7 @@ task_record = namedtuple('task_record',
                           "id", "datetime"])
 
 
-class taskListReader(object):
+class TaskListReader(object):
     """ reads the tasklist cache file and outputs
 
     and becomes an iterable object
@@ -96,8 +96,8 @@ class taskListReader(object):
         if not row:
             raise StopIteration
 
-        nexttask = self._create_task_from_row(row)
-        return nexttask
+        next_task = self._create_task_from_row(row)
+        return next_task
 
     def _create_task_from_row(self, row):
         try:
