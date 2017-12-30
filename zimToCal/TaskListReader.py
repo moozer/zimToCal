@@ -174,6 +174,6 @@ class TaskListReader(object):
 
     def get_task(self, task_id):
         cur = self.con.cursor()
-        query = 'select due, description, open, tags, source, prio, parent, id from tasklist where parent=?'
+        query = 'select due, description, open, tags, source, prio, parent, id from tasklist where id=?'
         cur.execute(query, (task_id,))
         return self._create_task_from_row(cur.fetchone())

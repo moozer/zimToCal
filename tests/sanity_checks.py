@@ -32,6 +32,18 @@ first_test_record = task_record(date=datetime.date(2016, 1, 1),
                                 id=1,
                                 datetime=datetime.datetime(2016, 1, 1, 0, 0, tzinfo=pytz.timezone('Europe/Copenhagen')))
 
+test_C_entry = task_record(date=datetime.date(2016, 1, 3), description=u'Task C', time=None,
+                           open=1, tags=u'', path=[u'Home'],
+                           priority=0, reach=None, parent_id=0,
+                           id=3,
+                           datetime=datetime.datetime(2016, 1, 3, 0, 0, tzinfo=pytz.timezone('Europe/Copenhagen')))
+
+test_C1_entry = task_record(date=datetime.date(2016, 1, 3), description=u'Task C1', time=None,
+                            open=1, tags=u'', path=[u'Home'],
+                            priority=0, reach=None, parent_id=3,
+                            id=4,
+                            datetime=datetime.datetime(2016, 1, 3, 0, 0, tzinfo=pytz.timezone('Europe/Copenhagen')))
+
 
 class MyTestCase(unittest.TestCase):
 
@@ -58,6 +70,14 @@ class MyTestCase(unittest.TestCase):
         tr = tlist.next()
         self.assertEqual(tr, first_test_record)
 
+    def test_get_task_by_id(self):
+        reader = TaskListReader(test_config)
+
+        task_C = reader.get_task(test_C_entry.id)
+        self.assertEqual(task_C, test_C_entry)
+
+        task_C1 = reader.get_task(test_C1_entry.id)
+        self.assertEqual(task_C1, test_C1_entry)
 
 if __name__ == '__main__':
     unittest.main()
