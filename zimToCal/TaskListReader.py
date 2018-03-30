@@ -1,8 +1,12 @@
 import sqlite3
+import zim_db
 import re
 from datetime import datetime, date
 from collections import namedtuple
 import pytz
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 def extractTime(taskText):
@@ -21,12 +25,12 @@ def extractTime(taskText):
     return (timeText, newText)
 
 
-def removeTag(taskText, tag):
+def removeTag(task_text, tag):
     """ extracts the hours like " 10:03 " from start of the text
     """
     timeRegex = "@%s" % (tag,)
     parser = re.compile(timeRegex)
-    newText = parser.sub('', taskText)
+    newText = parser.sub('', task_text)
     return newText
 
 
@@ -79,7 +83,17 @@ class TaskListReader(object):
     def __init__(self, config):
         self.dbfilename = config.filename
         self.config = config
-        self.con = sqlite3.connect(self.dbfilename)
+
+        # set up sqlalchemy
+        import os
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        db_string = 'sqlite:///{}/{}'.format(dir_path, self.dbfilename)
+
+        sqlite_engine = create_engine(db_string)
+        Session = sessionmaker(bind=sqlite_engine)
+        self.session = Session()
+
+        self.con = sqlite3.connect('{}/{}'.format(dir_path, self.dbfilename))
 
         self.tasks_query_cur = self._query_tasks()
 
@@ -149,17 +163,19 @@ class TaskListReader(object):
         if parent_id == 0:
             return []
 
-        prevpages = self._get_parent_pages(parent_id)
-        prevpages.append(basename)
-        return prevpages
+        prev_pages = self._get_parent_pages(parent_id)
+        prev_pages.append(basename)
+        return prev_pages
 
     def _get_parent_page(self, pageid):
-        cur = self.con.cursor()
-        query = "select parent, name from pages where id = ?"
-        cur.execute(query, (pageid,))
-        return cur.fetchone()
+        parent_page = self.session.query(zim_db.Page).filter(zim_db.Page.id == pageid).one()
+        return parent_page.parent, parent_page.name
 
     def _get_parent_task(self, task_id):
+        #        parent_id = session.query()
+
+        #        image_to_update = session.query(Image).filter(Image.uuid == 'uuid_rhino').first()
+
         cur = self.con.cursor()
 
         # 9999 is the magic number for "no due date"
