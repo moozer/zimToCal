@@ -18,6 +18,9 @@ class MyEpochType(types.TypeDecorator):
         return (value / 1000 - self.epoch).total_seconds()
 
     def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+
         return self.epoch + datetime.timedelta(seconds=value / 1000)
 
 
