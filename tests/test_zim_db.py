@@ -2,11 +2,17 @@ import unittest
 from zimToCal import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sanity_checks import test_C1_entry, test_C_entry, first_test_record, test_task
+import pytz
 
 test_config = ConfigStruct(filename='../testData/index.db',
                            not_open_tasks=False,
                            closed_tasks=False,
                            limit_tags=None)
+
+task_id_2 = task_record(date=datetime.date(2016, 1, 2), description=u'Task B', time=None, open=True,
+                        tags=u'', path=[u'Home'], priority=0, reach=None, parent_id=0,
+                        id=2, datetime=datetime.datetime(2016, 1, 2, 0, 0, tzinfo=pytz.timezone('Europe/Copenhagen')))
 
 
 class testDbAccess(unittest.TestCase):
@@ -24,8 +30,11 @@ class testDbAccess(unittest.TestCase):
         parent_page = self.session.query(Page).filter(zim_db.Page.id == 2).one()
         self._baseAssertEqual(parent_page.id, 2)
 
-# class TestTaskListReader(unittest.TestCase):
-#
-#    def test_init(self):
-#        zimToCal
-#        self.assertEqual(test_config.filename, '../testData/index.db')
+
+class testTaskListReader(unittest.TestCase):
+    def setUp(self):
+        self.tl = TaskListReader(test_config)
+
+    def test_get_page(self):
+        task = self.tl.get_task_by_id(2)
+        self.assertEqual(task, task_id_2)

@@ -110,7 +110,11 @@ class TaskListReader(object):
             next_task = self._create_task_from_row(task)
             return next_task
 
-        raise StopIteration
+        #for task in self._tasks:
+        #    next_task = self._create_task_from_row(task)
+        #    yield next_task
+
+        #raise StopIteration
 
         # row = self.tasks_query.
         # if not row:
@@ -119,7 +123,7 @@ class TaskListReader(object):
         # next_task = self._create_task_from_row(row)
         # return next_task
 
-    def _create_task_from_row(self, entry):
+    def _create_task_from_task_query(self, entry):
         try:
             print entry
             # due, description, open_status, tags, source_id, prio, parent_id, task_id = row
@@ -143,7 +147,7 @@ class TaskListReader(object):
             return task
 
         except ValueError:
-            raise ValueError("Possible date error in task '%s'" % description)
+            raise ValueError("Possible date error in task '%s'" % entry.description)
 
     def _query_tasks(self):
         # 9999 is the magic number for "no due date"
@@ -208,9 +212,9 @@ class TaskListReader(object):
         cur.execute(query, (task_id,))
         return cur.fetchone()
 
-    def get_task(self, task_id):
+    def get_task_by_id(self, task_id):
         tasks_query = self.session.query(zim_db.Tasklist).filter(zim_db.Tasklist.id == task_id )
-        return self._create_task_from_row(tasks_query.one())
+        return self._create_task_from_task_query(tasks_query.one())
 
         #cur = self.con.cursor()
         #query = 'select due, description, open, tags, source, prio, parent, id from tasklist where id=?'
