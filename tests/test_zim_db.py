@@ -3,7 +3,7 @@ from zimToCal import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-test_config = ConfigStruct(filename='/home/moz/git/zimToCal/testData/index.db',
+test_config = ConfigStruct(filename='../testData/index.db',
                            not_open_tasks=False,
                            closed_tasks=False,
                            limit_tags=None)
@@ -11,8 +11,10 @@ test_config = ConfigStruct(filename='/home/moz/git/zimToCal/testData/index.db',
 
 class testDbAccess(unittest.TestCase):
     def setUp(self):
-        db_string = 'sqlite:///{}'.format(test_config.filename)
-        print db_string
+        import os
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+
+        db_string = 'sqlite:///{}/{}'.format(dir_path, test_config.filename)
 
         sqlite_engine = create_engine(db_string)
         Session = sessionmaker(bind=sqlite_engine)
