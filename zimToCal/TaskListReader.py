@@ -95,7 +95,7 @@ class TaskListReader(object):
 
         self.con = sqlite3.connect('{}/{}'.format(dir_path, self.dbfilename))
 
-        self.tasks_query_cur = self._query_tasks()
+        self._tasks = self._query_tasks()
 
         try:
             self.default_tz = pytz.timezone(config.default_time_zone_name)
@@ -106,32 +106,39 @@ class TaskListReader(object):
         return self
 
     def next(self):
-        row = self.tasks_query_cur.fetchone()
-        if not row:
-            raise StopIteration
+        for task in self._tasks:
+            next_task = self._create_task_from_row(task)
+            return next_task
 
-        next_task = self._create_task_from_row(row)
-        return next_task
+        raise StopIteration
 
-    def _create_task_from_row(self, row):
+        # row = self.tasks_query.
+        # if not row:
+        #    raise StopIteration
+        #
+        # next_task = self._create_task_from_row(row)
+        # return next_task
+
+    def _create_task_from_row(self, entry):
         try:
-            due, description, open_status, tags, source_id, prio, parent_id, task_id = row
-            path = self._get_parent_pages(source_id)
-            result = re.sub('\[.*\]', '', description)
+            print entry
+            # due, description, open_status, tags, source_id, prio, parent_id, task_id = row
+            path = self._get_parent_pages(entry.source)
+            result = re.sub('\[.*\]', '', entry.description)
 
-            y, m, d = [int(i) for i in due.split('-')]
-            timeText, newText = extractTime(result)
-            reach_days, newText = extractReach(newText)
-            newText = removeTag(newText, self.config.limit_tags)
+            y, m, d = [int(i) for i in entry.due.split('-')]
+            time_text, new_text = extractTime(result)
+            reach_days, new_text = extractReach(new_text)
+            new_text = removeTag(new_text, self.config.limit_tags)
 
             task = task_record(
                 date=date(y, m, d),
                 datetime=datetime(y, m, d, tzinfo=self.default_tz),
-                description=newText,
-                time=timeText, open=open_status,
-                tags=tags, path=path, priority=prio,
+                description=new_text,
+                time=time_text, open=entry.open,
+                tags=entry.tags, path=path, priority=entry.prio,
                 reach=reach_days,
-                parent_id=parent_id, id=task_id)
+                parent_id=entry.parent, id=entry.id)
 
             return task
 
@@ -139,23 +146,36 @@ class TaskListReader(object):
             raise ValueError("Possible date error in task '%s'" % description)
 
     def _query_tasks(self):
-        cur = self.con.cursor()
-
         # 9999 is the magic number for "no due date"
-        query = 'select due, description, open, tags, source, prio, parent, id from tasklist where due != "9999"'
+        tasks_query = self.session.query(zim_db.Tasklist).filter(zim_db.Tasklist.due != '9999')
 
         if not self.config.closed_tasks and not self.config.not_open_tasks:
-            query += " and open = 1"
+            tasks_query = tasks_query.filter(zim_db.Tasklist.open == 1)
         elif self.config.closed_tasks and self.config.not_open_tasks:
-            query += " and open = 0"
+            tasks_query = tasks_query.filter(zim_db.Tasklist.open == 0)
         # else: nothing
 
-        if not self.config.limit_tags:
-            cur.execute(query)
-        else:
-            cur.execute(query + ' and tags=?', (self.config.limit_tags,))
+        if self.config.limit_tags:
+            tasks_query = tasks_query.filter(zim_db.Tasklist.tags == self.config.limit_tags, )
 
-        return cur
+        return tasks_query
+        # cur = self.con.cursor()
+        #
+        # # 9999 is the magic number for "no due date"
+        # query = 'select due, description, open, tags, source, prio, parent, id from tasklist where due != "9999"'
+        #
+        # if not self.config.closed_tasks and not self.config.not_open_tasks:
+        #     query += " and open = 1"
+        # elif self.config.closed_tasks and self.config.not_open_tasks:
+        #     query += " and open = 0"
+        # # else: nothing
+        #
+        # if not self.config.limit_tags:
+        #     cur.execute(query)
+        # else:
+        #     cur.execute(query + ' and tags=?', (self.config.limit_tags,))
+        #
+        # return cur
 
     def _get_parent_pages(self, pageid):
         parent_id, basename = self._get_parent_page(pageid)
@@ -189,7 +209,10 @@ class TaskListReader(object):
         return cur.fetchone()
 
     def get_task(self, task_id):
-        cur = self.con.cursor()
-        query = 'select due, description, open, tags, source, prio, parent, id from tasklist where id=?'
-        cur.execute(query, (task_id,))
-        return self._create_task_from_row(cur.fetchone())
+        tasks_query = self.session.query(zim_db.Tasklist).filter(zim_db.Tasklist.id == task_id )
+        return self._create_task_from_row(tasks_query.one())
+
+        #cur = self.con.cursor()
+        #query = 'select due, description, open, tags, source, prio, parent, id from tasklist where id=?'
+        #cur.execute(query, (task_id,))
+        #return self._create_task_from_row(cur.fetchone())
