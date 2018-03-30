@@ -110,23 +110,8 @@ class TaskListReader(object):
             next_task = self._create_task_from_row(task)
             return next_task
 
-        #for task in self._tasks:
-        #    next_task = self._create_task_from_row(task)
-        #    yield next_task
-
-        #raise StopIteration
-
-        # row = self.tasks_query.
-        # if not row:
-        #    raise StopIteration
-        #
-        # next_task = self._create_task_from_row(row)
-        # return next_task
-
     def _create_task_from_task_query(self, entry):
         try:
-            print entry
-            # due, description, open_status, tags, source_id, prio, parent_id, task_id = row
             path = self._get_parent_pages(entry.source)
             result = re.sub('\[.*\]', '', entry.description)
 
@@ -163,37 +148,23 @@ class TaskListReader(object):
             tasks_query = tasks_query.filter(zim_db.Tasklist.tags == self.config.limit_tags, )
 
         return tasks_query
-        # cur = self.con.cursor()
-        #
-        # # 9999 is the magic number for "no due date"
-        # query = 'select due, description, open, tags, source, prio, parent, id from tasklist where due != "9999"'
-        #
-        # if not self.config.closed_tasks and not self.config.not_open_tasks:
-        #     query += " and open = 1"
-        # elif self.config.closed_tasks and self.config.not_open_tasks:
-        #     query += " and open = 0"
-        # # else: nothing
-        #
-        # if not self.config.limit_tags:
-        #     cur.execute(query)
-        # else:
-        #     cur.execute(query + ' and tags=?', (self.config.limit_tags,))
-        #
-        # return cur
 
     def _get_parent_pages(self, pageid):
-        parent_id, basename = self._get_parent_page(pageid)
-
-        if parent_id == 0:
+        if pageid == 0:
             return []
 
+        parent_id = self.get_parent_task_id(pageid)
         prev_pages = self._get_parent_pages(parent_id)
-        prev_pages.append(basename)
+
+        # an add this page also
+        p_page = self._get_page_by_id(pageid)
+        prev_pages.append(p_page.name)
+
         return prev_pages
 
-    def _get_parent_page(self, pageid):
-        parent_page = self.session.query(zim_db.Page).filter(zim_db.Page.id == pageid).one()
-        return parent_page.parent, parent_page.name
+    def get_parent_task_id(self, task_id):
+        parent_task = self.session.query(zim_db.Tasklist.parent).filter(zim_db.Tasklist.id == task_id).one()
+        return parent_task.parent
 
     def _get_parent_task(self, task_id):
         #        parent_id = session.query()
@@ -213,10 +184,10 @@ class TaskListReader(object):
         return cur.fetchone()
 
     def get_task_by_id(self, task_id):
-        tasks_query = self.session.query(zim_db.Tasklist).filter(zim_db.Tasklist.id == task_id )
-        return self._create_task_from_task_query(tasks_query.one())
+        tasks_query = self.session.query(zim_db.Tasklist).filter(zim_db.Tasklist.id == task_id)
+        task = tasks_query.one()
+        return self._create_task_from_task_query(task)
 
-        #cur = self.con.cursor()
-        #query = 'select due, description, open, tags, source, prio, parent, id from tasklist where id=?'
-        #cur.execute(query, (task_id,))
-        #return self._create_task_from_row(cur.fetchone())
+    def _get_page_by_id(self, page_id):
+        page_query = self.session.query(zim_db.Page).filter(zim_db.Page.id == page_id)
+        return page_query.one()

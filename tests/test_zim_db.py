@@ -35,6 +35,10 @@ class testTaskListReader(unittest.TestCase):
     def setUp(self):
         self.tl = TaskListReader(test_config)
 
-    def test_get_page(self):
+    def test_get_task(self):
         task = self.tl.get_task_by_id(2)
         self.assertEqual(task, task_id_2)
+
+    def test_get_parent(self):
+        p_id = self.tl.get_parent_task_id(2)
+        self.assertEqual(p_id, task_id_2.parent_id)
