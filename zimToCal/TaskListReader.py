@@ -8,45 +8,45 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-def extractTime(taskText):
+def extract_time(task_text):
     """ extracts the hours like " 10:03 " from start of the text
     """
-    timeRegex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
-    parser = re.compile(timeRegex)
+    time_regex = '^\ {0,1}\d{1,2}:\d{2}\ {0,}'
+    parser = re.compile(time_regex)
 
-    timeTextFind = parser.match(taskText)
-    if timeTextFind:
-        timeText = [int(x) for x in timeTextFind.group().strip().split(':')]
+    time_text_find = parser.match(task_text)
+    if time_text_find:
+        time_text = [int(x) for x in time_text_find.group().strip().split(':')]
     else:
-        timeText = None
+        time_text = None
 
-    newText = parser.sub('', taskText)
-    return (timeText, newText)
+    new_text = parser.sub('', task_text)
+    return time_text, new_text
 
 
-def removeTag(task_text, tag):
+def remove_tag(task_text, tag):
     """ extracts the hours like " 10:03 " from start of the text
     """
-    timeRegex = "@%s" % (tag,)
-    parser = re.compile(timeRegex)
-    newText = parser.sub('', task_text)
-    return newText
+    time_regex = "@%s" % (tag,)
+    parser = re.compile(time_regex)
+    new_text = parser.sub('', task_text)
+    return new_text
 
 
-def extractReach(taskText):
+def extract_reach(task_text):
     """ extracts the hours like " r08 " from the start of text
     """
-    reachRegex = '^\ {0,1}r{1}\d{1,3}\ {0,}'
-    parser = re.compile(reachRegex)
+    reach_regex = '^\ {0,1}r{1}\d{1,3}\ {0,}'
+    parser = re.compile(reach_regex)
 
-    reachTextFind = parser.match(taskText)
-    if reachTextFind:
-        reach_days = int(reachTextFind.group().strip()[1:])
+    reach_text_find = parser.match(task_text)
+    if reach_text_find:
+        reach_days = int(reach_text_find.group().strip()[1:])
     else:
         reach_days = None
 
-    newText = parser.sub('', taskText)
-    return (reach_days, newText)
+    new_text = parser.sub('', task_text)
+    return reach_days, new_text
 
 
 task_record = namedtuple('task_record',
@@ -58,25 +58,6 @@ task_record = namedtuple('task_record',
 
 class TaskListReader(object):
     """ reads the tasklist cache file and outputs
-
-    and becomes an iterable object
-
-    From the database
-
-    sqlite> .schema tasklist
-    CREATE TABLE tasklist (
-        id INTEGER PRIMARY KEY,
-        source INTEGER,
-        parent INTEGER,
-        haschildren BOOLEAN,
-        open BOOLEAN,
-        actionable BOOLEAN,
-        prio INTEGER,
-        due TEXT,
-        tags TEXT,
-        description TEXT
-    );
-
     """
 
     def __init__(self, config):
@@ -103,9 +84,9 @@ class TaskListReader(object):
             result = re.sub('\[.*\]', '', entry.description)
 
             y, m, d = [int(i) for i in entry.due.split('-')]
-            time_text, new_text = extractTime(result)
-            reach_days, new_text = extractReach(new_text)
-            new_text = removeTag(new_text, self.config.limit_tags)
+            time_text, new_text = extract_time(result)
+            reach_days, new_text = extract_reach(new_text)
+            new_text = remove_tag(new_text, self.config.limit_tags)
 
             task = task_record(
                 date=date(y, m, d),
@@ -156,23 +137,6 @@ class TaskListReader(object):
     def get_parent_task_id(self, task_id):
         parent_task = self.session.query(zim_db.Tasklist.parent).filter(zim_db.Tasklist.id == task_id).one()
         return parent_task.parent
-
-    def _get_parent_task(self, task_id):
-        #        parent_id = session.query()
-
-        #        image_to_update = session.query(Image).filter(Image.uuid == 'uuid_rhino').first()
-
-        cur = self.con.cursor()
-
-        # 9999 is the magic number for "no due date"
-        query = 'select t.id, p.id, p.description \
-                 from tasklist t \
-                 inner join tasklist p \
-                 on p.id = t.parent \
-                 where t.id = ?'
-
-        cur.execute(query, (task_id,))
-        return cur.fetchone()
 
     def get_task_by_id(self, task_id):
         tasks_query = self.session.query(zim_db.Tasklist).filter(zim_db.Tasklist.id == task_id)
