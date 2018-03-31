@@ -1,4 +1,3 @@
-import sqlite3
 import zim_db
 import re
 from datetime import datetime, date
@@ -93,22 +92,10 @@ class TaskListReader(object):
         Session = sessionmaker(bind=sqlite_engine)
         self.session = Session()
 
-        self.con = sqlite3.connect('{}/{}'.format(dir_path, self.dbfilename))
-
-        self._tasks = self._query_tasks()
-
         try:
             self.default_tz = pytz.timezone(config.default_time_zone_name)
         except AttributeError:
             self.default_tz = pytz.timezone('Europe/Copenhagen')
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        for task in self._tasks:
-            next_task = self._create_task_from_row(task)
-            return next_task
 
     def _create_task_from_task_query(self, entry):
         try:
@@ -134,6 +121,10 @@ class TaskListReader(object):
         except ValueError:
             raise ValueError("Possible date error in task '%s'" % entry.description)
 
+    def get_tasks_generator(self):
+        for t in self._query_tasks():
+            yield self._create_task_from_task_query(t)
+
     def _query_tasks(self):
         # 9999 is the magic number for "no due date"
         tasks_query = self.session.query(zim_db.Tasklist).filter(zim_db.Tasklist.due != '9999')
@@ -145,7 +136,7 @@ class TaskListReader(object):
         # else: nothing
 
         if self.config.limit_tags:
-            tasks_query = tasks_query.filter(zim_db.Tasklist.tags == self.config.limit_tags, )
+            tasks_query = tasks_query.filter(zim_db.Tasklist.tags == self.config.limit_tags)
 
         return tasks_query
 
