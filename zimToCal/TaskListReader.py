@@ -1,3 +1,5 @@
+import sqlalchemy
+
 import zim_db
 import re
 from datetime import datetime, date
@@ -100,8 +102,11 @@ class TaskListReader(object):
             raise ValueError("Possible date error in task '%s'" % entry.description)
 
     def get_tasks_generator(self):
-        for t in self._query_tasks():
-            yield self._create_task_from_task_query(t)
+        try:
+            for t in self._query_tasks():
+                yield self._create_task_from_task_query(t)
+        except sqlalchemy.orm.exc.NoResultFound:
+            raise StopIteration
 
     def _query_tasks(self):
         # 9999 is the magic number for "no due date"
@@ -132,7 +137,7 @@ class TaskListReader(object):
         return prev_pages
 
     def get_parent_task_id(self, task_id):
-        parent_task = self.session.query(zim_db.Tasklist.parent).filter(zim_db.Tasklist.id == task_id).one()
+        parent_task = self.session.query(zim_db.Tasklist.parent).filter(zim_db.Tasklist.id == task_id).one_or_none()
         return parent_task.parent
 
     def get_task_by_id(self, task_id):
