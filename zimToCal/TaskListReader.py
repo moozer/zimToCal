@@ -64,10 +64,7 @@ class TaskListReader(object):
         self.dbfilename = config.filename
         self.config = config
 
-        # set up sqlalchemy
-        import os
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        db_string = 'sqlite:///{}/{}'.format(dir_path, self.dbfilename)
+        db_string = 'sqlite:///{}'.format(self.dbfilename)
 
         sqlite_engine = create_engine(db_string)
         Session = sessionmaker(bind=sqlite_engine)

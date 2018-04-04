@@ -3,8 +3,12 @@ from zimToCal import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import pytz
+import os
 
-db_filename = '../testData/index.db'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+db_filename_rel_path = '../testData/index.db'
+db_filename = '{}/{}'.format(dir_path, db_filename_rel_path)
+
 test_config = ConfigStruct(filename=db_filename,
                            not_open_tasks=False,
                            closed_tasks=False,
@@ -21,10 +25,7 @@ task_id_2 = task_record(date=datetime.date(2016, 1, 2), description=u'Task B', t
 
 class TestDbAccess(unittest.TestCase):
     def setUp(self):
-        import os
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-
-        db_string = 'sqlite:///{}/{}'.format(dir_path, test_config.filename)
+        db_string = 'sqlite:///{}'.format(test_config.filename)
 
         sqlite_engine = create_engine(db_string)
         Session = sessionmaker(bind=sqlite_engine)
@@ -56,4 +57,3 @@ class TestTaskListReader(unittest.TestCase):
         for t in tasks:
             self.assertEqual(t, task_id_1)
             break
-
