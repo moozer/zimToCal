@@ -70,6 +70,10 @@ class TestTaskListReaderNormal(TestTaskListReader, unittest.TestCase):
         p_id = self.tl.get_parent_task_id(2)
         self.assertEqual(p_id, task_id_2.parent_id)
 
+    def test_get_task_parent_nonexistent(self):
+        p_id = self.tl.get_parent_task_id(20)
+        self.assertEqual(p_id, None)
+
     def test_get_first_tasks(self):
         tasks = self.tl.get_tasks_generator()
         for t in tasks:
@@ -79,3 +83,5 @@ class TestTaskListReaderNormal(TestTaskListReader, unittest.TestCase):
 
 class TestTaskListReaderEmpty(TestTaskListReader, unittest.TestCase):
     CONFIG = test_config_empty
+
+

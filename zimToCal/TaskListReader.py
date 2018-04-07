@@ -128,6 +128,8 @@ class TaskListReader(object):
             return []
 
         parent_id = self.get_parent_task_id(pageid)
+        if parent_id is None:
+            return []
         prev_pages = self._get_parent_pages(parent_id)
 
         # an add this page also
@@ -138,6 +140,8 @@ class TaskListReader(object):
 
     def get_parent_task_id(self, task_id):
         parent_task = self.session.query(zim_db.Tasklist.parent).filter(zim_db.Tasklist.id == task_id).one_or_none()
+        if parent_task is None:
+            return None
         return parent_task.parent
 
     def get_task_by_id(self, task_id):
