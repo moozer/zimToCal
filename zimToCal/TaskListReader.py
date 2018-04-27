@@ -1,3 +1,5 @@
+import sqlalchemy
+
 import zim_db
 import re
 from datetime import datetime, date
@@ -64,10 +66,7 @@ class TaskListReader(object):
         self.dbfilename = config.filename
         self.config = config
 
-        # set up sqlalchemy
-        import os
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        db_string = 'sqlite:///{}/{}'.format(dir_path, self.dbfilename)
+        db_string = 'sqlite:///{}'.format(self.dbfilename)
 
         sqlite_engine = create_engine(db_string)
         Session = sessionmaker(bind=sqlite_engine)
@@ -103,8 +102,11 @@ class TaskListReader(object):
             raise ValueError("Possible date error in task '%s'" % entry.description)
 
     def get_tasks_generator(self):
-        for t in self._query_tasks():
-            yield self._create_task_from_task_query(t)
+        try:
+            for t in self._query_tasks():
+                yield self._create_task_from_task_query(t)
+        except sqlalchemy.orm.exc.NoResultFound:
+            raise StopIteration
 
     def _query_tasks(self):
         # 9999 is the magic number for "no due date"
@@ -126,6 +128,8 @@ class TaskListReader(object):
             return []
 
         parent_id = self.get_parent_task_id(pageid)
+        if parent_id is None:
+            return []
         prev_pages = self._get_parent_pages(parent_id)
 
         # an add this page also
@@ -135,7 +139,9 @@ class TaskListReader(object):
         return prev_pages
 
     def get_parent_task_id(self, task_id):
-        parent_task = self.session.query(zim_db.Tasklist.parent).filter(zim_db.Tasklist.id == task_id).one()
+        parent_task = self.session.query(zim_db.Tasklist.parent).filter(zim_db.Tasklist.id == task_id).one_or_none()
+        if parent_task is None:
+            return None
         return parent_task.parent
 
     def get_task_by_id(self, task_id):
