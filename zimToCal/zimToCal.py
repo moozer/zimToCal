@@ -5,7 +5,7 @@
 # adapted from here:
 #  http://icalendar.readthedocs.org/en/latest/usage.html
 
-from TaskListReader import TaskListReader
+from zimToCal.TaskListReader import TaskListReader
 from icalendar import Calendar, Event
 from datetime import timedelta, datetime
 import sys

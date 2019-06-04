@@ -1,6 +1,6 @@
 import sqlalchemy
 
-import zim_db
+import zimToCal.zim_db
 import re
 from datetime import datetime, date
 from collections import namedtuple

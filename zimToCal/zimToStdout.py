@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # outputs the tasks from the iterator as ical to stdout
 #
@@ -21,7 +21,7 @@ def task_to_stdout(config):
         output += "\t%s\t%s\t%s\t%s" % (t.open, t.priority, t.tags, t.path)
         output += "\t%s" % (t.description,)
 
-        print output.encode('utf-8')
+        print( output.encode('utf-8'))
 
 
 if __name__ == "__main__":
