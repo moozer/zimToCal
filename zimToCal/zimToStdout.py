@@ -5,7 +5,7 @@
 # adapted from here:
 #  http://icalendar.readthedocs.org/en/latest/usage.html
 
-from TaskListReader import TaskListReader
+from zimToCal.TaskListReader import TaskListReader
 from zimToCal import setup_arg_parse
 
 
